@@ -1,0 +1,7 @@
+{
+  "name": "mantle-riskgate",
+  "private": true,
+  "version": "0.0.1",
+  "description": "MBG (Mantle Bot Gate) — TEE-attested DeFi risk oracle for Mantle agents",
+  "workspaces": ["be", "tee-worker", "fe", "skills/mbg"]
+}

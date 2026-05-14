@@ -1,0 +1,38 @@
+node_modules/
+.next/
+dist/
+build/
+out/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+.vercel/
+coverage/
+.nyc_output/
+.turbo/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Internal planning — kept out of the public repo
+PLAN.md
+
+# Foundry
+cache/
+artifacts/
+forge-cache/
+broadcast/
+*/broadcast/**/run-*.json
+*/broadcast/**/*-latest.json
+
+# Phala / TEE
+*.tdx
+attestation-cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
