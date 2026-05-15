@@ -3,3 +3,5 @@ cache/
 broadcast/
 lib/
 .env
+.gas-snapshot
+lcov.info

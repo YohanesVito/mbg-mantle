@@ -27,15 +27,26 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const ORACLE_ADDRESS = (process.env.ORACLE_ADDRESS ?? '') as `0x${string}`
 const RPC_URL = process.env.RPC_URL ?? 'http://127.0.0.1:8545'
+const CHAIN_ID = Number(process.env.CHAIN_ID ?? '31337')
 
 const DEFAULT_ANVIL_SIGNER_KEY =
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 const SIGNER_KEY = (process.env.SIGNER_KEY ?? DEFAULT_ANVIL_SIGNER_KEY) as `0x${string}`
 
-const anvil = defineChain({
-  id: 31337,
-  name: 'Anvil',
-  nativeCurrency: {name: 'Ether', symbol: 'ETH', decimals: 18},
+const chain = defineChain({
+  id: CHAIN_ID,
+  name:
+    CHAIN_ID === 31337
+      ? 'Anvil'
+      : CHAIN_ID === 5000
+        ? 'Mantle'
+        : CHAIN_ID === 5003
+          ? 'Mantle Sepolia'
+          : `chain-${CHAIN_ID}`,
+  nativeCurrency:
+    CHAIN_ID === 5000 || CHAIN_ID === 5003
+      ? {name: 'Mantle', symbol: 'MNT', decimals: 18}
+      : {name: 'Ether', symbol: 'ETH', decimals: 18},
   rpcUrls: {default: {http: [RPC_URL]}},
 })
 
@@ -77,8 +88,10 @@ async function main() {
   }
 
   const account = privateKeyToAccount(SIGNER_KEY)
-  const wallet = createWalletClient({chain: anvil, transport: http(RPC_URL), account})
-  const pub = createPublicClient({chain: anvil, transport: http(RPC_URL)})
+  const wallet = createWalletClient({chain, transport: http(RPC_URL), account})
+  const pub = createPublicClient({chain, transport: http(RPC_URL)})
+
+  console.log(`chain:     ${chain.name} (id ${CHAIN_ID})`)
 
   console.log('MBG integration')
   console.log('---------------')

@@ -211,6 +211,23 @@ contract RiskOracleTest is Test {
         assertEq(distinct, 1);
     }
 
+    function test_getRouteScore_everyLegUnscored() public {
+        // No submitScore calls — all three protocols have timestamp == 0.
+        IRiskOracle.Action[] memory actions = new IRiskOracle.Action[](3);
+        actions[0] = IRiskOracle.Action({protocol: aaveV3, actionType: 0, amount: 1});
+        actions[1] = IRiskOracle.Action({protocol: lendle, actionType: 0, amount: 1});
+        actions[2] = IRiskOracle.Action({protocol: methProtocol, actionType: 0, amount: 1});
+
+        (uint16 aggregate, uint16 penalty, uint8 distinct, bool allScored) =
+            oracle.getRouteScore(actions);
+
+        // scoredCount == 0 branch: meanAggregate = 0, penalty applied but clamps.
+        assertEq(aggregate, 0, "no scored legs => aggregate 0");
+        assertEq(penalty, 100, "penalty still computed from distinct count");
+        assertEq(distinct, 3, "distinct = 3");
+        assertFalse(allScored, "all unscored");
+    }
+
     function test_getRouteScore_unscoredProtocolFlagsAllScoredFalse() public {
         vm.prank(signer);
         oracle.submitScore(aaveV3, 800, 0, 0, 0, 0, traceHash);
