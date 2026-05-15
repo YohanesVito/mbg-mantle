@@ -1,4 +1,4 @@
-import {PROTOCOLS} from '@mbg/be'
+import {PROTOCOLS} from '@/lib/protocols'
 import {RouteBuilder} from './route-builder'
 
 export const dynamic = 'force-dynamic'

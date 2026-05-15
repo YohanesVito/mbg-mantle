@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
-import {findProtocol, type ComponentScore} from '@mbg/be'
+import {findProtocol} from '@/lib/protocols'
 import {
   fetchProtocolScore,
   formatScore,

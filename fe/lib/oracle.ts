@@ -1,4 +1,5 @@
-import {PROTOCOLS, type Protocol} from '@mbg/be'
+import {PROTOCOLS} from './protocols'
+import type {Protocol} from './types'
 import {createPublicClient, defineChain, http, keccak256, parseAbi, toHex} from 'viem'
 
 const RPC_URL = process.env.MBG_RPC_URL ?? 'http://127.0.0.1:8545'

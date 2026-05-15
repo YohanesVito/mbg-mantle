@@ -20,7 +20,6 @@
       "name": "@mbg/fe",
       "version": "0.0.1",
       "dependencies": {
-        "@mbg/be": "workspace:*",
         "next": "^16.2.4",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
