@@ -36,3 +36,4 @@ attestation-cache/
 .idea/
 .vscode/
 *.swp
+.vercel
