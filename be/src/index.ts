@@ -13,7 +13,7 @@ export async function scoreProtocol(protocol: Protocol): Promise<ProtocolScore> 
   const components = {
     contract: computeContractRisk(protocol),
     liquidity: computeLiquidityRisk(protocol, llamaData),
-    centralization: computeCentralizationRisk(protocol),
+    centralization: await computeCentralizationRisk(protocol),
     oracle: await computeOracleRisk(protocol),
   }
 

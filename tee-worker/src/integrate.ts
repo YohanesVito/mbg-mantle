@@ -141,7 +141,7 @@ async function main() {
         traceHash,
       ],
     })
-    await pub.waitForTransactionReceipt({hash: txHash})
+    await pub.waitForTransactionReceipt({hash: txHash, timeout: 120_000, retryCount: 60})
 
     console.log(
       `  ${ps.protocol.id.padEnd(20)} → ${protocolAddr}  aggregate=${aggregate}/1000  tx=${txHash.slice(0, 12)}...`,

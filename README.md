@@ -1,12 +1,28 @@
 # MBG — Mantle Bot Gate
 
-> The pre-trade risk gate for Mantle DeFi agents — a TEE-attested on-chain oracle that bots and dapps consult before routing user funds.
+> **The only DeFi risk oracle where every score comes with a cryptographic receipt — so an AI agent that routes your money can't fake having considered the risk.**
 
-## What MBG is
+**Live demo:** https://mbg-fe.vercel.app · **Contract (Mantle Sepolia):** [`0x58519569...0ae45`](https://sepolia.mantlescan.xyz/address/0x58519569c3D5C9a13dC0e8e7B6d2E123E2f0ae45#code)
 
-Existing risk scorers (CertiK Skynet, Exponential.fi, DeFiSafety) publish off-chain. MBG signs scores inside a TEE and writes them on-chain so any agent or contract can **prove** it consulted a current risk evaluation before routing a user's funds, and so a user can independently verify the same.
+## Why this exists
 
-The score itself is not the moat — the **attestation**, the **Mantle-native composition risk model**, and the **agent-integration surface** are.
+AI agents are moving real money in DeFi (RealClaw, Brahma, Hey Anon). They claim to consider risk before signing on your behalf — but you can't tell if they did. Every existing risk scorer (CertiK Skynet, Exponential.fi, DeFiSafety) lives behind a private API. To use them in an agent flow, you have to trust the company running the server, *and* trust the agent that says it consulted them. Two layers of "believe me bro."
+
+MBG removes both. Every score is computed inside an Intel TDX enclave on Phala Cloud, signed inside the enclave, posted on-chain. The agent that consulted MBG carries an attestation hash that *anyone* — you, another contract, the next agent in the chain — can verify. "Believe me bro" becomes math.
+
+## Three pillars
+
+**1. Built for agents, not dashboards.** Callable from any contract via `getRouteScore(actions[])` in one view call. Or as a Byreal Skill (`mbg-cli`) for natural-language agents. The dashboard exists for *transparency*; the product is the on-chain oracle.
+
+**2. Verifiable end-to-end.** The code that ran, the data it ate, the signing key — all attested. Re-derive the score from the same inputs and confirm. You don't trust us. You verify.
+
+**3. Mantle-native risk.** Multi-chain scorers treat Mantle as another EVM. We model what Mantle protocols actually depend on: mETH/cmETH depeg history, fBTC bridge attestation chain, MI4 Securitize+Fireblocks custody, sequencer uptime, route composition penalty. Same "Aave V3" but a *different* score on Mantle vs. Base — because the surrounding risk surfaces are different.
+
+## Who uses it
+
+- **AI agents** (RealClaw, Brahma, Giza ARMA) → consume the on-chain oracle or install the [Byreal Skill](./skills/mbg/)
+- **End users** → open [mbg-fe.vercel.app](https://mbg-fe.vercel.app), check the attestation hash on Mantlescan
+- **Other dapps** → use `getProtocolScore` / `getRouteScore` as a pre-trade gate primitive
 
 ## Repository layout
 

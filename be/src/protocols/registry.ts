@@ -12,6 +12,7 @@ export const PROTOCOLS: Protocol[] = [
     addresses: {
       aaveOracle: '0x47a063CfDa980532267970d478EC340C0F80E8df',
       poolDataProvider: '0x487c5c669D9eee6057C44973207101276cf73b68',
+      admin: '0x70884634D0098782592111A2A6B8d223be31CB7b',
     },
     audits: [
       { firm: 'OpenZeppelin', date: '2022-01-27', url: 'https://github.com/aave/aave-v3-core/tree/master/audits' },
@@ -33,6 +34,7 @@ export const PROTOCOLS: Protocol[] = [
     addresses: {
       aaveOracle: '0x870c9692Ab04944C86ec6FEeF63F261226506EfC',
       poolDataProvider: '0x552b9e4bae485C4B7F540777d7D25614CdB84773',
+      admin: '0xB6eEdA94Bbb926881489F32489092C28e1a92484',
     },
     audits: [
       {
@@ -86,6 +88,9 @@ export const PROTOCOLS: Protocol[] = [
     category: 'dex',
     description: 'Liquidity Book DEX on Mantle (Trader Joe v2.1 architecture).',
     deployedAt: '2023-12-01',
+    addresses: {
+      admin: '0x244305969310527b29d8Ff3Aa263f686dB61Df6f',
+    },
     audits: [{ firm: 'Inherited from Trader Joe v2.1', date: '2023-04-01' }],
   },
   {
