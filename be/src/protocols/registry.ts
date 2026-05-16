@@ -61,6 +61,9 @@ export const PROTOCOLS: Protocol[] = [
     category: 'lending',
     description: 'Lending protocol with isolated markets and hooks',
     deployedAt: '2024-02-01',
+    addresses: {
+      admin: '0xCE3292cA5AbbdFA1Db02142A67CFFc708530675a',
+    },
     mantleExposure: {
       lst: ['mETH', 'cmETH'],
       notes: 'Isolated lending markets including mETH and cmETH collateral pairs.',
