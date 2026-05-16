@@ -15,9 +15,9 @@ The score itself is not the moat — the **attestation**, the **Mantle-native co
 | [`sc/`](./sc/) | Smart contracts — `RiskOracle` (Foundry) |
 | [`be/`](./be/) | Scoring engine — data ingestion, base components, aggregation (Bun + TypeScript) |
 | [`tee-worker/`](./tee-worker/) | Phala TDX worker — runs the scoring engine inside the enclave, signs attested scores, submits on-chain |
-| [`fe/`](./fe/) | Dashboard — Next.js, leaderboard + per-protocol detail + route checker |
 | [`skills/mbg/`](./skills/mbg/) | Byreal Skill — agent-callable CLI (`mbg-cli`) with on-chain reads |
 | [`docs/`](./docs/) | Architecture diagrams, methodology deep-dives, RFCs |
+| **Dashboard — separate repo:** [`mbg-fe`](https://github.com/YohanesVito/mbg-fe) | Next.js leaderboard / detail / route-checker. Extracted from this monorepo on 2026-05-16 to simplify Vercel deploys. |
 
 ## Getting started (local)
 
@@ -33,13 +33,12 @@ cd be && bun run score
 # Smart contracts: tests
 cd sc && forge install foundry-rs/forge-std --no-git && forge test
 
-# Frontend: dev server on http://localhost:3000
-cd fe && bun run dev
-
 # Skill: agent-style CLI
 cd skills/mbg && bun run cli list-protocols
 cd skills/mbg && bun run cli score-protocol aave-v3-mantle
 ```
+
+The **dashboard** lives in a separate repo: [`YohanesVito/mbg-fe`](https://github.com/YohanesVito/mbg-fe) — clone and `bun install && bun run dev` there.
 
 For local end-to-end testing (Anvil + deploy + integrate), see `tee-worker/` and `sc/script/Deploy.s.sol`.
 
