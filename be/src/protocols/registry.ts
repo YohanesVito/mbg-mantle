@@ -14,6 +14,11 @@ export const PROTOCOLS: Protocol[] = [
       poolDataProvider: '0x487c5c669D9eee6057C44973207101276cf73b68',
       admin: '0x70884634D0098782592111A2A6B8d223be31CB7b',
     },
+    mantleExposure: {
+      lst: ['mETH', 'cmETH'],
+      stable: ['USDe'],
+      notes: 'Lending markets accept mETH + cmETH as collateral; USDe is a borrow/supply asset on this deployment.',
+    },
     audits: [
       { firm: 'OpenZeppelin', date: '2022-01-27', url: 'https://github.com/aave/aave-v3-core/tree/master/audits' },
       { firm: 'Trail of Bits', date: '2022-02-15' },
@@ -36,6 +41,10 @@ export const PROTOCOLS: Protocol[] = [
       poolDataProvider: '0x552b9e4bae485C4B7F540777d7D25614CdB84773',
       admin: '0xB6eEdA94Bbb926881489F32489092C28e1a92484',
     },
+    mantleExposure: {
+      lst: ['mETH'],
+      notes: 'Mantle lending market that accepts mETH as collateral.',
+    },
     audits: [
       {
         firm: 'SourceHat',
@@ -52,6 +61,10 @@ export const PROTOCOLS: Protocol[] = [
     category: 'lending',
     description: 'Lending protocol with isolated markets and hooks',
     deployedAt: '2024-02-01',
+    mantleExposure: {
+      lst: ['mETH', 'cmETH'],
+      notes: 'Isolated lending markets including mETH and cmETH collateral pairs.',
+    },
     audits: [
       {
         firm: 'Code4rena',
@@ -72,6 +85,12 @@ export const PROTOCOLS: Protocol[] = [
       'Mantle Liquid Staking Protocol (mETH + cmETH). Staking happens on Ethereum so DefiLlama registers chains as ["Ethereum"]; we use protocol-wide TVL.',
     deployedAt: '2023-12-01',
     tvlMetric: 'total',
+    addresses: {
+      admin: '0x71a1f9186C381265c736544b70A24E23deCa5037',
+    },
+    mantleExposure: {
+      notes: 'mETH Protocol IS the LST issuer for the Mantle ecosystem — no transitive LST dependency.',
+    },
     audits: [
       {
         firm: 'OpenZeppelin',
@@ -91,6 +110,10 @@ export const PROTOCOLS: Protocol[] = [
     addresses: {
       admin: '0x244305969310527b29d8Ff3Aa263f686dB61Df6f',
     },
+    mantleExposure: {
+      lst: ['mETH'],
+      notes: 'DEX with mETH-denominated liquidity pools.',
+    },
     audits: [{ firm: 'Inherited from Trader Joe v2.1', date: '2023-04-01' }],
   },
   {
@@ -100,6 +123,10 @@ export const PROTOCOLS: Protocol[] = [
     category: 'dex',
     description: 'Concentrated-liquidity DEX on Mantle (Uniswap V3 architecture).',
     deployedAt: '2023-07-21',
+    mantleExposure: {
+      lst: ['mETH'],
+      notes: 'CL-DEX with mETH liquidity pools alongside WMNT/USDT/USDC pairs.',
+    },
     audits: [], // TODO: verify auditors via https://agni.finance/ docs
   },
   {
@@ -109,6 +136,10 @@ export const PROTOCOLS: Protocol[] = [
     category: 'dex',
     description: 'Concentrated-liquidity DEX on Mantle. V3 successor to FusionX V2.',
     deployedAt: '2023-07-17',
+    mantleExposure: {
+      lst: ['mETH'],
+      notes: 'DEX hosting WMNT/mETH and other Mantle-native pairs.',
+    },
     audits: [
       {
         firm: 'PeckShield',
@@ -124,6 +155,9 @@ export const PROTOCOLS: Protocol[] = [
     category: 'derivatives',
     description: 'Perpetual futures on Mantle (also deployed on Arbitrum, BSC).',
     deployedAt: '2023-05-25',
+    mantleExposure: {
+      notes: 'Perpetuals use Pyth oracle for ETH/BTC; no direct LST or bridge-token holdings.',
+    },
     audits: [
       {
         firm: 'MetaScan',
@@ -141,6 +175,10 @@ export const PROTOCOLS: Protocol[] = [
       'Yield-bearing tAssets (tETH, etc.) and DOR (Decentralized Offered Rate). Deployed across Ethereum, Avalanche, Mantle.',
     deployedAt: '2024-09-10',
     tvlMetric: 'total',
+    mantleExposure: {
+      lst: ['cmETH'],
+      notes: 'Treehouse on Mantle holds restaked mETH (cmETH) as a yield input.',
+    },
     audits: [
       {
         firm: 'Treehouse audit reports (multi-firm)',
@@ -157,6 +195,10 @@ export const PROTOCOLS: Protocol[] = [
     description:
       'Tokenized short-term US Treasuries (USDY). Deployed across 12 chains including Mantle.',
     deployedAt: '2024-01-01',
+    mantleExposure: {
+      stable: ['USDY'],
+      notes: 'Ondo USDY IS the tokenized-treasury issuer; the exposure is to the off-chain treasury backing and Ondo SPV custody chain.',
+    },
     audits: [
       {
         firm: 'CertiK',
@@ -173,6 +215,12 @@ export const PROTOCOLS: Protocol[] = [
     description:
       'Tokenized basket of BTC/ETH/SOL/stables. Structured as a BVI Limited Partnership; managed by Mantle Guard Limited; tokenization by Securitize; custody via Fireblocks; legal counsel Latham & Watkins. No public smart-contract audit report surfaced; institutional fund-audit chain (Big 4 pattern) not disclosed publicly.',
     deployedAt: '2025-10-24',
+    mantleExposure: {
+      lst: ['mETH'],
+      stable: ['USDe'],
+      bridge: ['fBTC'],
+      notes: 'Index fund holding mETH for ETH yield, sUSDe for stable yield, BTC exposure via wrapped representations; broad Mantle-native composition risk.',
+    },
     audits: [], // TODO: contact Securitize / Mantle Guard for public-disclosable audit references
   },
   {
@@ -184,6 +232,9 @@ export const PROTOCOLS: Protocol[] = [
       'Function (FBTC): tokenized BTC across EVM ecosystems. Backed by Galaxy Digital + Antalpha + Mantle ($10M seed, Jul 2025). Documentation references audited reserves; specific smart-contract audit report not located via public search. DefiLlama registers chains as Bitcoin.',
     deployedAt: '2024-08-05',
     tvlMetric: 'total',
+    mantleExposure: {
+      notes: 'FBTC IS the bridge / tokenized-BTC issuer; its exposure is to the off-chain BTC custody chain (Antalpha) rather than to a third-party bridge.',
+    },
     audits: [], // TODO: obtain Hacken / Quantstamp / equivalent audit URLs from Function team
   },
   {
@@ -195,6 +246,10 @@ export const PROTOCOLS: Protocol[] = [
       'Synthetic USD stablecoin backed by ETH delta-neutral basis trade. DefiLlama-registered chains: Ethereum; used on Mantle as a stable asset.',
     deployedAt: '2024-02-15',
     tvlMetric: 'total',
+    mantleExposure: {
+      stable: ['USDe', 'USDtb'],
+      notes: 'Ethena USDe is the stable; risk is in the delta-neutral basis trade collateral chain (ETH staked + perp shorts on CEX) and Ethena custody.',
+    },
     audits: [
       {
         firm: 'Quantstamp + others',

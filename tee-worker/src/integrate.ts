@@ -117,6 +117,16 @@ async function main() {
   console.log(`scored ${scores.length} protocols`)
   console.log()
 
+  // Manage nonce explicitly. Mantle Sepolia's getTransactionCount
+  // sometimes lags behind the sequencer; viem's per-call nonce fetch races
+  // with the chain when submitting many txs back-to-back.
+  let nonce = await pub.getTransactionCount({
+    address: account.address,
+    blockTag: 'pending',
+  })
+  console.log(`starting nonce: ${nonce}`)
+  console.log()
+
   console.log('submitting scores...')
   for (const ps of scores) {
     const protocolAddr = placeholderProtocolAddress(ps.protocol.id)
@@ -140,7 +150,9 @@ async function main() {
         oracleRisk,
         traceHash,
       ],
+      nonce,
     })
+    nonce++
     await pub.waitForTransactionReceipt({hash: txHash, timeout: 120_000, retryCount: 60})
 
     console.log(

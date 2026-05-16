@@ -4,6 +4,7 @@ import { computeContractRisk } from './scoring/contract-risk'
 import { computeLiquidityRisk } from './scoring/liquidity-risk'
 import { computeCentralizationRisk } from './scoring/centralization-risk'
 import { computeOracleRisk } from './scoring/oracle-risk'
+import { computeMantleExposureScore } from './scoring/mantle-exposure'
 import { aggregateScore } from './scoring/aggregate'
 import type { Protocol, ProtocolScore } from './types'
 
@@ -15,6 +16,7 @@ export async function scoreProtocol(protocol: Protocol): Promise<ProtocolScore> 
     liquidity: computeLiquidityRisk(protocol, llamaData),
     centralization: await computeCentralizationRisk(protocol),
     oracle: await computeOracleRisk(protocol),
+    mantleExposure: computeMantleExposureScore(protocol),
   }
 
   const { score: aggregate, reasoning } = aggregateScore(components)
