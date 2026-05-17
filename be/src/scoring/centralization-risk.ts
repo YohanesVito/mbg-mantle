@@ -23,6 +23,12 @@ export async function computeCentralizationRisk(
 ): Promise<ComponentScore> {
   const adminAddr = protocol.addresses?.admin
   if (!adminAddr) {
+    // Some categories have governance that's *deliberately* off-chain.
+    // Don't pretend "we don't know" — explain WHY there's no on-chain admin
+    // and score by the category's typical governance pattern.
+    const offChainScore = scoreOffChainGovernance(protocol)
+    if (offChainScore) return offChainScore
+
     return {
       score: 5.0,
       reasoning:
@@ -43,6 +49,42 @@ export async function computeCentralizationRisk(
   }
 
   return scoreFromAdminInfo(info)
+}
+
+/**
+ * Score protocols whose governance is *intentionally* off-chain:
+ * RWA tokens (regulated issuer), synthetic stablecoins (operational stack
+ * at the issuer), bridges (off-chain custody chain). The on-chain contract
+ * is the minting / settlement layer; the actual control is at a legal
+ * entity above it. That's a different shape of centralization risk than
+ * a crypto multisig and deserves its own scoring, not a generic placeholder.
+ */
+function scoreOffChainGovernance(protocol: Protocol): ComponentScore | null {
+  if (protocol.category === 'rwa') {
+    return {
+      score: 5.5,
+      reasoning:
+        'RWA protocol. On-chain admin is the tokenization layer; effective governance is the issuer\'s off-chain legal entity (Securitize / Mantle Guard / Ondo). Centralization "risk" here is regulated SPV control, not crypto-multisig — auditable but centralized by design.',
+      inputs: {kind: 'off-chain-rwa', category: protocol.category},
+    }
+  }
+  if (protocol.category === 'bridge') {
+    return {
+      score: 4.5,
+      reasoning:
+        'Bridge / tokenized asset. Effective control is the issuer\'s off-chain custody chain (e.g. Antalpha for FBTC). On-chain admin gates mint/burn; the broader trust is in the custodian operation. Bridges have higher historical exploit rates than DeFi-native protocols, hence the conservative score.',
+      inputs: {kind: 'off-chain-bridge', category: protocol.category},
+    }
+  }
+  if (protocol.category === 'stablecoin') {
+    return {
+      score: 5.0,
+      reasoning:
+        "Synthetic stablecoin. Governance lives in the issuer's operational stack (Ethena's delta-neutral perp positions, CEX custody, treasury management). The on-chain mint authority is one piece; the broader peg-defense system is mostly off-chain.",
+      inputs: {kind: 'off-chain-stablecoin', category: protocol.category},
+    }
+  }
+  return null
 }
 
 function scoreFromAdminInfo(info: AdminInfo): ComponentScore {
