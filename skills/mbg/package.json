@@ -10,6 +10,7 @@
   "scripts": {
     "cli": "bun run bin/mbg-cli.ts",
     "demo": "bun run bin/mbg-cli.ts catalog list && bun run bin/mbg-cli.ts list-protocols && bun run bin/mbg-cli.ts score-protocol aave-v3-mantle && bun run bin/mbg-cli.ts score-route '[{\"protocolId\":\"aave-v3-mantle\",\"actionType\":1,\"amount\":\"1000\"},{\"protocolId\":\"meth-protocol\",\"actionType\":3,\"amount\":\"500\"}]'",
+    "harness": "bun run harness/agent-demo.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
