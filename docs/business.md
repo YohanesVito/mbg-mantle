@@ -22,13 +22,14 @@ That's **three layers of "believe me bro."** It is incompatible with the agent-e
 
 ## 2. The product (in one sentence)
 
-> **MBG is the only DeFi risk oracle where every score comes with a cryptographic receipt — so an AI agent that routes your money can't fake having considered the risk.**
+> **MBG is the autonomous risk-scoring agent for the Mantle agent economy — TEE-attested, on-chain-identity-registered, and consumable by every trading agent on Mantle as a Byreal Skill or a single on-chain view call.**
 
 Concretely:
 
-- Every score is computed inside an Intel TDX enclave (Phala dstack), signed with a key that physically cannot leave the enclave, written on-chain to `RiskOracle.sol` on Mantle.
-- An agent that consulted MBG carries the attestation hash. The user re-derives, verifies, sleeps.
-- Three interfaces today: on-chain `getRouteScore` view call, Byreal/OpenClaw `mbg-cli` Skill, REST wrapper for non-Node agents.
+- MBG is **itself an agent**, not just a service: ERC-8004 identity #130 in the canonical Mantle Mainnet IdentityRegistry; autonomous inference loop inside a TEE; signed outputs written on-chain. It belongs in the agent economy alongside the trading agents (RealClaw, Brahma, Giza ARMA, Hey Anon) — as the producer of the verifiable safety signal those trading agents consume.
+- Every score is computed inside an Intel TDX enclave (Phala dstack), signed with a key derived inside the enclave, written on-chain to `RiskOracle.sol` at `0x998ceb70…594eb` on Mantle Mainnet. (v0 ships attested-EOA fallback while we migrate to full Phala TDX post-hackathon — see Section 7 on defensibility for the migration plan.)
+- A trading agent that consulted MBG carries the attestation hash in its response to the user. The user (or another verifier, or the next agent in the chain) re-derives the score from on-chain inputs and confirms.
+- Three interfaces today: on-chain `getProtocolScore` / `getRouteScore` view calls (for smart contract wallets and policy engines), Byreal/OpenClaw `mbg-cli` Skill (for LLM-driven trading agents), REST wrapper (for non-Node runtimes).
 
 ## 3. Market sizing — agents on Mantle
 
@@ -50,6 +51,26 @@ These numbers are deliberately conservative. They are realistic if Mantle's agen
 | **Enterprise** | Yield platforms, large agent fleets, on-chain insurance protocols (Nexus, OpenCover) | Custom risk feeds, custom scoring weights, direct line to MBG ops for incidents. SLA-backed. Risk-aware lending param proposals as a service to Aave V3 / Lendle governance. | Annual contract, $20–60K/yr. |
 
 The moat is the **attestation hash**: every additional agent that consults MBG strengthens the network effect, because each consultation is a public on-chain event that the next user/auditor can reference. Agents that don't consult MBG look unverifiable by comparison.
+
+### 4.1 Unit economics
+
+The product is *cheap to run per score* and *expensive to fork the trust around*. Numbers below are conservative (built-in slack) and grounded in Mantle/Phala/RPC prices as of 2026-06.
+
+| Line item | Cost per unit | Frequency at steady-state | Monthly cost |
+|---|---|---|---|
+| Mantle Mainnet RPC reads per protocol score | ~10 calls × <$0.000001 (free tier + paid backup) | 13 protocols × refresh hourly = 312/day | <$5/mo |
+| Phala TDX attestation per score | ~$0.01–0.02 (Phala dstack v1, post-migration) | 312/day | ~$100–150/mo |
+| Gas to `submitScore` on Mantle Mainnet | ~$0.001/tx (Mantle is cheap; observed) | 312/day | ~$10/mo |
+| DefiLlama API + Etherscan V2 API | free tiers cover 13 protocols | continuous | $0 |
+| Hosted dashboard + Skill REST wrapper (Vercel + serverless) | small Hobby/Pro tier | continuous | ~$20/mo |
+| **Total infra at 13 protocols, hourly refresh** | | | **~$140–185/mo** |
+
+| Tier | List price | Gross margin per customer | Break-even paid customers |
+|---|---|---|---|
+| Agent SaaS (avg blended) | $80/agent/mo | ~85% (most cost is fixed infra above) | 3 paid agents covers infra |
+| Enterprise | $40K/yr ARR avg | ~90% (custom feed = minor infra delta) | 1 enterprise contract = profitable Y1 |
+
+The shape is classic infra SaaS: low marginal cost per score, defensible attestation moat, and **break-even is single-digit paid customers**. Scaling to 50–100 protocols across multiple chains multiplies infra to ~$1K–2K/mo, still trivial relative to ARR.
 
 ## 5. Go-to-market — three phases
 
@@ -87,7 +108,20 @@ The moat is the **attestation hash**: every additional agent that consults MBG s
 | **On-chain attestation network effect** | Every agent consultation writes a public event. Agents that consult MBG become more verifiable; agents that don't become less. The market converges on MBG by user pressure, not because we lock anyone in. |
 | **Mantle-native risk data** | We've built per-protocol LST/bridge/stablecoin exposure modeling that global scorers do not. CertiK treats Mantle as just another EVM; we model Mantle-specific dependency graphs. As more RWA/LST infra ships on Mantle (mETH, cmETH, fBTC, MI4, USDY, USDe), the data gap widens, not closes. |
 | **TEE attestation chain** | Real TDX-derived signing keys, ERC-8004 identity NFT in the canonical Mantle registry (`0x8004A169...`). Forking is easy; reproducing trust takes attestation history. |
-| **Distribution via Skills CLI** | One install command (`npx skills add mbg-score`) lands us in every OpenClaw agent. The Skill is open-source; the curated registry + the running TEE worker are not trivially forkable. |
+| **Distribution via npm + Skills CLI** | One install command (`npm install -g mbg-score`) lands us in every Node-based agent runtime; `npx skills add mbg-score` lands us in every OpenClaw agent. The Skill is open-source; the curated registry + the running TEE worker are not trivially forkable. |
+
+### 7.1 Risk register — what could kill this
+
+We list the things we think *could* kill the business, ordered by severity, with our current mitigation. We are not in denial about any of them.
+
+| Risk | Why it could kill us | Current mitigation | Residual risk |
+|---|---|---|---|
+| **Regulatory — risk score as investment advice** | If US SEC reclassifies attested DeFi risk signals as "investment advice" the per-tier API model becomes a securities-adjacent service. | (a) MBG is non-prescriptive — outputs are descriptive risk components, not buy/sell. (b) Open public reads stay free regardless. (c) Enterprise contracts route through the customer's compliance, not ours. | Medium. Regulation will shift; we ship in jurisdictions where outputs remain descriptive data. |
+| **TEE vendor concentration** | We currently depend on Phala dstack. If Phala goes down, raises prices, or changes attestation semantics, our v1 attestation chain breaks. | (a) v0 ships attested-EOA fallback that survives Phala outage. (b) ERC-8004 identity is portable — same agentId can migrate to a different TEE substrate (Intel TDX is industry standard, not Phala-specific). (c) Phala builder credits + ecosystem partnership reduce vendor lock fears. | Low–medium. Mitigated by attestation portability. |
+| **Competitor pivot — CertiK / Exponential ship on-chain attestation** | Both have brand and capital. If they ship attestation in 9–12 months, our defensibility collapses to Mantle-native data alone. | (a) Network-effect lead: every agent that consults MBG today widens the attestation history they cannot replicate. (b) Mantle-native composition modeling is data, not a feature — replicating it requires understanding the Mantle dependency graph as deeply as we do. (c) Skill format distribution moves faster than enterprise SaaS sales cycles. | Real. Time to PMF is the answer; we estimate 9–12 months before the moat is sticky. |
+| **Market timing — agent economy adoption slows** | If RealClaw/Brahma/Hey Anon/Giza ARMA growth stalls in 2026, the consumer side of our Agent SaaS revenue stalls with them. | (a) Enterprise tier (insurance pricing, lending parameter input) is independent of agent-economy growth — banks and DAOs are the customer there. (b) Open public good usage keeps brand alive regardless. (c) Our infra cost at 13 protocols is <$200/mo — we can survive long. | Medium. Decoupled enterprise revenue is the hedge. |
+| **Smart contract risk — RiskOracle exploit** | RiskOracle uses access control for signer. Compromise of the attested EOA (v0) or TDX key (v1) lets attacker post fake scores. | (a) 100% line + function test coverage with Foundry (35 passing). (b) v0 EOA is a hot key with limited blast radius (cannot mint, cannot withdraw funds). (c) v1 TDX key is non-exportable — cannot leak even on host compromise. (d) Optional ERC-8004 ValidationRegistry for slashing post-attack. | Low. Bounded by access control + TEE properties. |
+| **Capital — no signed funding** | Bootstrapping past Phase 1 with one founder is real-world hard. Without grant or seed by month 3, runway pressure starts. | (a) Phala builder credits + Mantle Foundation grant target = 6 months of compute covered. (b) Cost structure (<$200/mo infra) makes self-funded survival realistic. (c) Hackathon prize pool is real near-term liquidity. | Real. Standard early-stage capital risk. |
 
 ## 8. Tokenomics — deliberately deferred
 
@@ -137,4 +171,4 @@ The clearest defensible position: **on-chain verifiability + Mantle-native model
 
 ## 12. The honest single sentence
 
-> The Mantle agent economy is the most concrete bet on AI×Web3 anyone has placed in 2026 — and the only risk infrastructure that survives that bet is the one agents can prove they consulted. We are building that.
+> The Mantle agent economy needs both shapes of agent — agents that move funds, and agents that produce verifiable safety signals those movers can prove they consulted. We are the second shape. We are not the agent your money goes to; we are the agent your trading agent has to call first.
