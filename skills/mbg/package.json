@@ -1,20 +1,39 @@
 {
-  "name": "@mbg/score-skill",
-  "version": "0.0.1",
-  "private": true,
+  "name": "mbg-score",
+  "version": "0.1.0",
   "type": "module",
-  "description": "MBG (Mantle Bot Gate) Byreal Skill — risk-aware pre-trade gate for Mantle DeFi agents",
+  "license": "MIT",
+  "description": "MBG (Mantle Bot Gate) Skill — TEE-attested on-chain risk scoring for Mantle DeFi agents. Provides per-protocol and per-route risk scores with cryptographic attestation hashes any agent can present to its user.",
+  "keywords": [
+    "mantle",
+    "defi",
+    "risk-scoring",
+    "byreal-skill",
+    "openclaw-skill",
+    "tee",
+    "phala",
+    "ai-agent",
+    "realclaw"
+  ],
+  "homepage": "https://mbg-fe.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YohanesVito/mbg-mantle.git",
+    "directory": "skills/mbg"
+  },
+  "bugs": {
+    "url": "https://github.com/YohanesVito/mbg-mantle/issues"
+  },
   "bin": {
     "mbg-cli": "./bin/mbg-cli.ts"
   },
   "scripts": {
     "cli": "bun run bin/mbg-cli.ts",
-    "demo": "bun run bin/mbg-cli.ts catalog list && bun run bin/mbg-cli.ts list-protocols && bun run bin/mbg-cli.ts score-protocol aave-v3-mantle && bun run bin/mbg-cli.ts score-route '[{\"protocolId\":\"aave-v3-mantle\",\"actionType\":1,\"amount\":\"1000\"},{\"protocolId\":\"meth-protocol\",\"actionType\":3,\"amount\":\"500\"}]'",
     "harness": "bun run harness/agent-demo.ts",
+    "demo": "bun run bin/mbg-cli.ts catalog list && bun run bin/mbg-cli.ts list-protocols && bun run bin/mbg-cli.ts score-protocol aave-v3-mantle && bun run bin/mbg-cli.ts score-route '[{\"protocolId\":\"aave-v3-mantle\",\"actionType\":1,\"amount\":\"1000\"},{\"protocolId\":\"meth-protocol\",\"actionType\":3,\"amount\":\"500\"}]'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mbg/be": "workspace:*",
     "viem": "^2.21.0"
   },
   "devDependencies": {

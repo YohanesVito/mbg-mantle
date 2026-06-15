@@ -19,7 +19,7 @@
  *   MBG_ORACLE_ADDRESS             RiskOracle address on the configured chain
  */
 
-import {PROTOCOLS, findProtocol} from '@mbg/be'
+import {PROTOCOLS, findProtocol} from '../data/protocols'
 import {
   createPublicClient,
   defineChain,
