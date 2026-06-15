@@ -3,34 +3,51 @@
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
-  "description": "MBG (Mantle Bot Gate) Skill — TEE-attested on-chain risk scoring for Mantle DeFi agents. Provides per-protocol and per-route risk scores with cryptographic attestation hashes any agent can present to its user.",
+  "description": "MBG (Mantle Bot Gate) Skill — TEE-attested on-chain risk scoring for Mantle DeFi. Installable as an OpenClaw / Byreal Skill so AI trading agents can pre-check Mantle protocol and route risk before signing, and surface a verifiable attestation hash to their user.",
   "keywords": [
     "mantle",
+    "mantle-network",
     "defi",
     "risk-scoring",
+    "risk-oracle",
+    "byreal",
     "byreal-skill",
+    "openclaw",
     "openclaw-skill",
     "tee",
     "phala",
     "ai-agent",
-    "realclaw"
+    "agent-skill",
+    "realclaw",
+    "erc-8004"
   ],
   "homepage": "https://mbg-fe.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YohanesVito/mbg-mantle.git",
+    "url": "git+https://github.com/YohanesVito/mbg-mantle.git",
     "directory": "skills/mbg"
   },
   "bugs": {
     "url": "https://github.com/YohanesVito/mbg-mantle/issues"
   },
   "bin": {
-    "mbg-cli": "./bin/mbg-cli.ts"
+    "mbg-cli": "dist/mbg-cli.js"
+  },
+  "files": [
+    "dist",
+    "SKILL.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "cli": "bun run bin/mbg-cli.ts",
     "harness": "bun run harness/agent-demo.ts",
     "demo": "bun run bin/mbg-cli.ts catalog list && bun run bin/mbg-cli.ts list-protocols && bun run bin/mbg-cli.ts score-protocol aave-v3-mantle && bun run bin/mbg-cli.ts score-route '[{\"protocolId\":\"aave-v3-mantle\",\"actionType\":1,\"amount\":\"1000\"},{\"protocolId\":\"meth-protocol\",\"actionType\":3,\"amount\":\"500\"}]'",
+    "build": "bun build bin/mbg-cli.ts --target=node --outfile=dist/mbg-cli.js --external=viem && chmod +x dist/mbg-cli.js",
+    "prepublishOnly": "bun run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

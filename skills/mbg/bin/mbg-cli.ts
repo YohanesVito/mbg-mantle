@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * mbg-cli — Mantle Bot Gate Skill CLI
  *
@@ -13,10 +13,10 @@
  * Flags:
  *   -o json | --output json        emit JSON instead of human-readable
  *
- * Environment:
- *   MBG_RPC_URL                    chain RPC (default: http://127.0.0.1:8545)
- *   MBG_CHAIN_ID                   chain id (default: 31337)
- *   MBG_ORACLE_ADDRESS             RiskOracle address on the configured chain
+ * Environment (defaults read the live Mantle Mainnet RiskOracle):
+ *   MBG_RPC_URL                    chain RPC (default: https://rpc.mantle.xyz)
+ *   MBG_CHAIN_ID                   chain id (default: 5000 — Mantle Mainnet)
+ *   MBG_ORACLE_ADDRESS             RiskOracle (default: 0x998ceb70...594eb on Mainnet)
  */
 
 import {PROTOCOLS, findProtocol} from '../data/protocols'
@@ -34,15 +34,22 @@ import {join, dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 // ─── env ────────────────────────────────────────────────────────────────────
-const RPC_URL = process.env.MBG_RPC_URL ?? 'http://127.0.0.1:8545'
-const CHAIN_ID = Number(process.env.MBG_CHAIN_ID ?? '31337')
+// Defaults point at the live Mantle Mainnet RiskOracle so a fresh
+// `npm install -g mbg-score && mbg-cli score-protocol aave-v3-mantle`
+// works zero-config. Override any of these for local Anvil / Sepolia.
+const RPC_URL = process.env.MBG_RPC_URL ?? 'https://rpc.mantle.xyz'
+const CHAIN_ID = Number(process.env.MBG_CHAIN_ID ?? '5000')
 const ORACLE_ADDRESS =
   (process.env.MBG_ORACLE_ADDRESS as Address | undefined) ??
-  '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+  '0x998ceb700e57f535873d189a6b1b7e2aa8c594eb'
 
 const chain = defineChain({
   id: CHAIN_ID,
-  name: CHAIN_ID === 31337 ? 'Anvil' : CHAIN_ID === 5000 ? 'Mantle' : 'Mantle Sepolia',
+  name:
+    CHAIN_ID === 5000 ? 'Mantle' :
+    CHAIN_ID === 5003 ? 'Mantle Sepolia' :
+    CHAIN_ID === 31337 ? 'Anvil' :
+    `Chain ${CHAIN_ID}`,
   nativeCurrency: {name: 'Ether', symbol: 'ETH', decimals: 18},
   rpcUrls: {default: {http: [RPC_URL]}},
 })

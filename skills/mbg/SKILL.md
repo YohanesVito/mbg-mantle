@@ -1,24 +1,35 @@
 ---
 name: mbg-score
-description: "Mantle Bot Gate (MBG) risk scoring for Mantle DeFi protocols. Provides TEE-attested per-protocol risk scores AND composed route risk for multi-leg DeFi actions on Mantle. Use when the user mentions Mantle DeFi, lending, yield, swap routing, LP, perps, LST, restaking, RWA, or any protocol on Mantle Network — and the agent is about to choose where to route funds. Scores come with an on-chain attestation hash so the agent can prove (to the user, to another contract, or to a third party) that it consulted the gate before signing."
+description: "Mantle Bot Gate (MBG) is an autonomous risk-scoring agent for Mantle DeFi protocols (ERC-8004 agentId 130, live on Mantle Mainnet). This Skill exposes MBG to other (trading) agents so they can pre-check risk before signing transactions on user behalf. Provides TEE-attested per-protocol risk scores AND composed route risk for multi-leg DeFi actions on Mantle. Use when the user mentions Mantle DeFi, lending, yield, swap routing, LP, perps, LST, restaking, RWA, or any protocol on Mantle Network — and the agent is about to choose where to route funds. Scores come with an on-chain attestation hash so the calling agent can prove (to the user, to another contract, or to a third party) that it consulted MBG before signing."
 metadata:
   openclaw:
-    homepage: https://github.com/mbg-mantle/mbg-skill
+    homepage: https://github.com/YohanesVito/mbg-mantle/tree/main/skills/mbg
     requires:
       bins:
         - mbg-cli
       config: []
     install:
-      - kind: node
-        package: "@mbg/score-skill"
-        global: true
+      - kind: git
+        repo: https://github.com/YohanesVito/mbg-mantle.git
+        subdir: skills/mbg
+  onchain:
+    network: mantle-mainnet
+    chainId: 5000
+    riskOracle: "0x998ceb700e57f535873d189a6b1b7e2aa8c594eb"
+    erc8004IdentityRegistry: "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+    agentId: 130
+    verifiedSource: https://mantlescan.xyz/address/0x998ceb700e57f535873d189a6b1b7e2aa8c594eb#code
 ---
 
-# Mantle Bot Gate — risk-aware pre-trade gate
+# Mantle Bot Gate — the autonomous risk-scoring agent for Mantle DeFi
 
-## What this Skill does
+## What this Skill is
 
-MBG is the pre-trade risk gate for Mantle DeFi agents. Before an agent (you) signs a transaction on a user's behalf, you should consult MBG to score the proposed protocols and route. Every score is computed inside a TEE enclave and submitted on-chain — the published model, the input data hash, and the inference trace are all attested.
+This Skill is the calling interface for MBG (Mantle Bot Gate) — an autonomous risk-scoring agent that lives on Mantle Mainnet. MBG is itself an agent: it has an on-chain identity (ERC-8004 agentId 130 in the canonical Mantle IdentityRegistry), runs scoring inference inside a TEE, and signs its outputs with an attested key.
+
+**This Skill exists so that you — a trading agent (RealClaw, Brahma, Hey Anon, Giza ARMA, or any other LLM-driven agent on Mantle) — can call MBG before signing transactions on a user's behalf, and surface the attestation hash to your user as proof that you consulted the risk gate.**
+
+You do not compete with MBG. MBG does not move user funds. You do. Call MBG first.
 
 ## When to use
 
@@ -47,16 +58,25 @@ mbg-cli catalog show <capability-id>
 ## Installation
 
 ```bash
-# Check
-which mbg-cli && mbg-cli --version
+# Check whether the Skill is already installed
+which mbg-cli && mbg-cli skill | head -5
 
-# Install (once published to npm)
-npm install -g @mbg/score-skill
+# Install from npm (one command)
+npm install -g mbg-score
+# or
+bun add -g mbg-score
 
-# Hackathon-time local install:
-git clone https://github.com/mbg-mantle/mbg-skill.git && \
-  cd mbg-skill && bun install && bun link
+# Verify
+mbg-cli skill
+mbg-cli list-protocols
+mbg-cli score-protocol aave-v3-mantle
 ```
+
+Requirements: Node 18+ (or Bun). Defaults read live Mantle Mainnet — no configuration needed. Override `MBG_RPC_URL` / `MBG_CHAIN_ID` / `MBG_ORACLE_ADDRESS` for local Anvil or Sepolia.
+
+On-chain references the Skill reads from:
+- RiskOracle on Mantle Mainnet: `0x998ceb700e57f535873d189a6b1b7e2aa8c594eb` ([verified source](https://mantlescan.xyz/address/0x998ceb700e57f535873d189a6b1b7e2aa8c594eb#code))
+- ERC-8004 agent identity for MBG itself: agentId 130 in canonical Mantle IdentityRegistry `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
 
 ## Core capabilities (one-liners)
 
